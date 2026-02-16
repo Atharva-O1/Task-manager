@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 app = Flask(__name__)
+tasks = []
 CORS(app)
 
 @app.route("/")
@@ -19,11 +20,20 @@ def create_task():
 
     if not title or not description:
         return jsonify({"error": "Invalid data"}), 400
-
-    return jsonify({
+    
+    task = {
+        "id": len(tasks) + 1,
         "title": title,
         "description": description
-    }), 201
+    }
+
+    tasks.append(task)
+
+    return jsonify(task), 201
+
+@app.route("/tasks", methods=["GET"])
+def get_tasks():
+    return jsonify(tasks), 200
 
 
 if __name__ == "__main__":

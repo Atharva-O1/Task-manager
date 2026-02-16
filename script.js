@@ -1,6 +1,16 @@
 const addTaskButton = document.getElementById("AddTaskButton");
 const taskList = document.getElementById("TaskList");
 
+fetch("http://127.0.0.1:5000/tasks")
+    .then(response => response.json())
+    .then(tasks => {
+        tasks.forEach(task => renderTask(task));
+    })
+    .catch(error => {
+        console.error("Failed to load tasks", error);
+    });
+
+
 addTaskButton.addEventListener("click", function () {
     const titleInput = document.getElementById("title");
     const descriptionInput = document.getElementById("description");
@@ -13,15 +23,14 @@ addTaskButton.addEventListener("click", function () {
         return;
     }
 
-
     fetch("http://127.0.0.1:5000/tasks", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            title: title,
-            description: description
+            title,
+            description
         })
     })
     .then(response => {
@@ -30,18 +39,8 @@ addTaskButton.addEventListener("click", function () {
         }
         return response.json();
     })
-    .then(data => {
-
-        const taskItem = document.createElement("li");
-
-        taskItem.innerHTML = `
-            <strong>${data.title}</strong><br>
-            <span>${data.description}</span><br>
-            <button class="deleteBtn">Delete</button>
-        `;
-
-        taskList.appendChild(taskItem);
-
+    .then(task => {
+        renderTask(task);
         titleInput.value = "";
         descriptionInput.value = "";
     })
@@ -51,8 +50,22 @@ addTaskButton.addEventListener("click", function () {
     });
 });
 
+
 taskList.addEventListener("click", function (event) {
     if (event.target.classList.contains("deleteBtn")) {
         event.target.parentElement.remove();
     }
 });
+
+
+function renderTask(task) {
+    const taskItem = document.createElement("li");
+
+    taskItem.innerHTML = `
+        <strong>${task.title}</strong><br>
+        <span>${task.description}</span><br>
+        <button class="deleteBtn">Delete</button>
+    `;
+
+    taskList.appendChild(taskItem);
+}
