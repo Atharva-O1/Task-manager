@@ -105,3 +105,9 @@ h1 {
 .deleteBtn:hover {
     background-color: #dc2626;
 }
+
+#emptyState {
+    text-align: center;
+    color: #9ca3af;
+    margin-top: 20px;
+}

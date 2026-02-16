@@ -5,6 +5,7 @@ fetch("http://127.0.0.1:5000/tasks")
     .then(response => response.json())
     .then(tasks => {
         tasks.forEach(task => renderTask(task));
+        updateEmptyState();
     })
     .catch(error => {
         console.error("Failed to load tasks", error);
@@ -23,15 +24,15 @@ addTaskButton.addEventListener("click", function () {
         return;
     }
 
+    addTaskButton.disabled = true;
+    addTaskButton.textContent = "Adding...";
+
     fetch("http://127.0.0.1:5000/tasks", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-            title,
-            description
-        })
+        body: JSON.stringify({ title, description })
     })
     .then(response => {
         if (!response.ok) {
@@ -43,10 +44,15 @@ addTaskButton.addEventListener("click", function () {
         renderTask(task);
         titleInput.value = "";
         descriptionInput.value = "";
+        updateEmptyState();
     })
     .catch(error => {
         console.error(error);
         alert("Something went wrong");
+    })
+    .finally(() => {
+        addTaskButton.disabled = false;
+        addTaskButton.textContent = "Add Task";
     });
 });
 
@@ -54,6 +60,7 @@ addTaskButton.addEventListener("click", function () {
 taskList.addEventListener("click", function (event) {
     if (event.target.classList.contains("deleteBtn")) {
         event.target.parentElement.remove();
+        updateEmptyState();
     }
 });
 
@@ -68,4 +75,13 @@ function renderTask(task) {
     `;
 
     taskList.appendChild(taskItem);
+}
+
+
+function updateEmptyState() {
+    const emptyState = document.getElementById("emptyState");
+    if (!emptyState) return;
+
+    emptyState.style.display =
+        taskList.children.length === 0 ? "block" : "none";
 }
